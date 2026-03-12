@@ -243,6 +243,8 @@ Verify permissions for users
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1a53fbd-ad35-4468-9078-e3635304d796" />
 
 **DevOps User:**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1ed4c1d3-a861-463e-ac98-6a757c0f9b51" />
+
 
 
 
