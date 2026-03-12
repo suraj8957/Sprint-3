@@ -187,6 +187,69 @@ Administration
 ```
 <img width="1920" height="430" alt="image (4)" src="https://github.com/user-attachments/assets/a9d0adb8-29e3-415c-8cef-f01a75598c86" />
 
+**Create the following groups:**
+
+```
+Dev 
+QA
+DevOps
+```
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/966dbc67-8636-4831-9482-5cb4e83ef29f" />
+
+#### Step 4: Create Users
+
+**Navigate to:**
+
+```
+Administration
+→ Security
+→ Users
+```
+
+Create users and assign them to groups.
+
+| User | Group |
+|-----|------|
+| devuser | Dev |
+| qauser | QA |
+| devopsuser | DevOps |
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/47720097-d035-4e5f-8e16-89da22f263cf" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/300a2296-2b88-4205-a5fe-a45ccbb8f10c" />
+
+#### # Step 5: Assign Permissions
+Open the project:
+
+```
+Projects
+→ employee-api
+→ Project Settings
+→ Permissions
+```
+Assign permissions:
+| Group | Permission |
+|------|-------------|
+| Dev | Execute Analysis |
+| QA | Execute Analysis |
+| DevOps | Administer |
+<img width="1920" height="710" alt="image" src="https://github.com/user-attachments/assets/58c88ce1-6234-441d-a5a8-d6a1af24acd2" />
+
+Verify permissions for users
+
+Dev User:
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca3570e7-3366-42ce-b3b9-1f4614c9de41" />
+
+QA User:
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1a53fbd-ad35-4468-9078-e3635304d796" />
+
+DevOps User:
+
+
+
+
+
+
+
+
 
 
 
