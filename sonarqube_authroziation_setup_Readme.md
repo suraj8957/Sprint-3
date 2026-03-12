@@ -29,7 +29,7 @@ Before starting, ensure the following:
 
 ## 4. Create Ansible Role
 
-#### Step-1 Create a new Ansible role for SonarQube.
+#### Step 1: Create a new Ansible role for SonarQube.
 ```bash
 ansible-galaxy init <role_name>
 ```
@@ -40,5 +40,152 @@ ansible-galaxy init <role_name>
 ```
 [sonarqube]
 sonar ansible_host=15.206.28.132 ansible_user=ubuntu ansible_ssh_private_key_file=/home/suraj/Downloads/ot_micro_service.pem
+```
+**Playbook install-sonarqube.yml**
+```
+---
+- hosts: sonarqube
+  become: yes
+
+  roles:
+    - sonarcube
+```
+**default/main.yml**
+```
+sonarqube_version: "10.4.0"
+sonarqube_user: "sonar"
+sonarqube_group: "sonar"
+sonarqube_port: 9000
+sonarqube_db_name: "sonarqube"
+sonarqube_db_user: "sonar"
+sonarqube_db_password: "sonar"
+```
+**tasks/main.yml**
+```
+---
+# install Java 
+- name: Install Java
+  apt:
+    name: openjdk-17-jdk
+    state: present
+    update_cache: yes
+
+# install unzip 
+
+- name: Install unzip
+  apt:
+    name: unzip
+    state: present
+
+# Install PostgreSQL
+- name: Install PostgreSQL
+  apt:
+    name: postgresql
+    state: present
+
+# Install psycopg2
+- name: Install PostgreSQL Python library
+  apt:
+    name: python3-psycopg2
+    state: present
+
+# create database
+- name: Create sonar database
+  become_user: postgres
+  postgresql_db:
+    name: sonarqube
+
+- name: Create sonar user
+  become_user: postgres
+  postgresql_user:
+    name: sonar
+    password: sonar
+    state: present
+
+# Grant privileges
+- name: Grant privileges
+  become_user: postgres
+  postgresql_privs:
+    database: sonarqube
+    roles: sonar
+    privs: ALL
+    type: database
+
+# Create SonarQube user
+- name: Create sonar user
+  user:
+    name: sonar
+    shell: /bin/bash
+
+# Download SonarQube
+- name: Download SonarQube
+  get_url:
+    url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.4.1.88267.zip
+    dest: /opt/sonarqube.zip
+
+# Unzip SonarQube
+- name: Unzip SonarQube
+  unarchive:
+    src: /opt/sonarqube.zip
+    dest: /opt/
+    remote_src: yes
+
+- name: Rename SonarQube folder
+  command: mv /opt/sonarqube-10.4.1.88267 /opt/sonarqube
+  args:
+    creates: /opt/sonarqube
+
+# Change ownership
+- name: Change ownership
+  file:
+    path: /opt/sonarqube
+    owner: sonar
+    group: sonar
+    recurse: yes
+
+- name: Configure SonarQube
+  template:
+    src: sonar.properties.j2
+    dest: /opt/sonarqube/conf/sonar.properties
+    
+- name: Set vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: "262144"
+    state: present
+
+- name: Start SonarQube
+  shell: sudo -u sonar /opt/sonarqube/bin/linux-x86-64/sonar.sh start
+```
+
+**templates/sonar.properties.j2**
+```
+sonar.jdbc.username={{ sonarqube_db_user }}
+sonar.jdbc.password={{ sonarqube_db_password }}
+sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
+```
+
+#### Step 2: Access SonarQube
+
+Open SonarQube in the browser:
+```
+http://<server-ip>:9000
+```
+Login:
+```
+Username: admin
+Password: admin
+```
+**Note:** By default, Username and Password are admin
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a4a0a777-5c4b-4e54-a8e6-fdd180c0ff6b" />
+
+#### Step 3: Create Groups in SonarQube
+```
+Administration
+→ Security
+→ Groups
+```
+
+
 
 
