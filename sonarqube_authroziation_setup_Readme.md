@@ -231,17 +231,18 @@ Assign permissions:
 | Dev | Execute Analysis |
 | QA | Execute Analysis |
 | DevOps | Administer |
-<img width="1920" height="710" alt="image" src="https://github.com/user-attachments/assets/58c88ce1-6234-441d-a5a8-d6a1af24acd2" />
+<img width="1920" height="820" alt="image" src="https://github.com/user-attachments/assets/929684d8-ae8a-441b-a1aa-3850a5f209a3" />
+
 
 Verify permissions for users
 
-Dev User:
+**Dev User:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca3570e7-3366-42ce-b3b9-1f4614c9de41" />
 
-QA User:
+**QA User:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1a53fbd-ad35-4468-9078-e3635304d796" />
 
-DevOps User:
+**DevOps User:**
 
 
 
