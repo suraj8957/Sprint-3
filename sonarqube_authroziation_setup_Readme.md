@@ -474,13 +474,13 @@ Common plugins:
 
 ## 6. Conclusion
 
-In this implementation we successfully configured **Role-Based Access Control (RBAC)** in SonarQube.
+In this implementation, we successfully configured Role-Based Access Control (RBAC) in SonarQube.
 
 Permissions were assigned as:
 
-- **Dev Team → Execute Analysis**
-- **QA Team → Execute Analysis**
-- **DevOps Team → Full Administrative Access**
+- Dev Team → Execute Analysis
+- QA Team → Execute Analysis
+- DevOps Team → Full Administrative Access
 
 We also demonstrated how SonarQube configuration can be automated using Ansible roles and REST APIs, enabling infrastructure as code and improving operational efficiency.
 
