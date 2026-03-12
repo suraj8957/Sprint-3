@@ -1,4 +1,12 @@
 # SonarQube Authorization Setup using Ansible Role
+
+---
+## Document Details
+
+| Author | Created on | Version | Last updated by | Last edited on | Pre Reviewer | L0 Reviewer | L1 Reviewer | L2 Reviewer |
+|--------|------------|---------|-----------------|----------------|--------------|-------------|-------------|-------------|
+| Suraj Tripathi | 11-03-2026 | v1.0 | Suraj Tripathi | 11-02-2026 |              | Aniruddh    | Shreya S    | Ashwani |
+
 ---
 ## 1. Overview
 This document describes the complete setup for configuring **Role-Based Authorization (RBAC)** in SonarQube and automating the configuration using **Ansible roles**.
@@ -231,19 +239,277 @@ Assign permissions:
 | Dev | Execute Analysis |
 | QA | Execute Analysis |
 | DevOps | Administer |
+
+Explanation:
+- **Execute Analysis** allows users to run SonarQube code analysis.
+- **Administer** allows users to manage project settings and permissions.
+
 <img width="1920" height="820" alt="image" src="https://github.com/user-attachments/assets/929684d8-ae8a-441b-a1aa-3850a5f209a3" />
 
 
 Verify permissions for users
 
-**Dev User:**
+**Verify by Logging in as Dev User:**
+
+```
+Logout from the admin account and login using the developer user.
+
+Example:
+
+Username: devuser
+Password: <password>
+
+Open the project:
+
+Projects → employee-api
+
+Now check the available options.
+
+Expected behavior for **devuser**:
+
+Allowed actions:
+
+- Run SonarQube code analysis
+- View project results (bugs, vulnerabilities, code smells)
+
+Restricted actions:
+
+- Cannot access **Project Settings**
+- Cannot modify **Permissions**
+- Cannot change **Quality Gates**
+- Cannot manage **Users or Groups**
+
+If these options are not visible to the dev user, it confirms that the user does not have administrative permissions.
+```
+
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca3570e7-3366-42ce-b3b9-1f4614c9de41" />
 
-**QA User:**
+**Verify by Logging in as QA User:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1a53fbd-ad35-4468-9078-e3635304d796" />
 
-**DevOps User:**
+**Verify by Logging in as DevOps User:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1ed4c1d3-a861-463e-ac98-6a757c0f9b51" />
+
+---
+
+## 4. Managing configuration for SonarQube via Ansible
+
+SonarQube provides a **built-in REST API** that allows administrators and DevOps engineers to automate many tasks such as:
+
+- Creating users
+- Creating groups
+- Assigning permissions
+- Managing projects
+- Managing quality gates
+
+These APIs are useful when integrating SonarQube with **automation tools like Ansible, Jenkins, or CI/CD pipelines**.
+
+Instead of manually configuring everything from the UI, we can automate the configuration using these APIs.
+
+---
+
+##### Access the SonarQube API Documentation
+
+SonarQube provides an interactive API documentation page.
+
+Open the following URL in your browser:
+
+```
+http://<server-ip>:9000/web_api
+```
+Examples of categories you will see:
+
+- Users
+- User Groups
+- Permissions
+- Projects
+- Quality Gates
+- Issues
+
+
+##### Important APIs Used in This Setup
+
+For this Ticket, we mainly use APIs related to **user groups and permissions**.
+
+| API Endpoint | Purpose |
+|--------------|--------|
+| `/api/user_groups/create` | Create a new group |
+| `/api/users/create` | Create a new user |
+| `/api/permissions/add_group` | Assign permissions to a group |
+
+
+##### Why We Use These APIs with Ansible
+
+These APIs allow us to automate SonarQube configuration.
+
+For example, using **Ansible** we can automatically:
+
+- Create Dev, QA, and DevOps groups
+- Assign permissions
+- Configure SonarQube without manual UI interaction
+
+automation workflow:
+
+```
+Ansible Playbook
+       ↓
+Call SonarQube REST API
+       ↓
+Create Groups
+       ↓
+Assign Permissions
+       ↓
+SonarQube Configuration Completed
+```
+
+This approach follows **Infrastructure as Code (IaC)** principles and ensures consistent configuration across environments.
+
+#### step 1: Automating Group Creation with Ansible
+
+Add tasks to create groups.
+
+```
+- name: Create dev-team group
+  uri:
+    url: "http://<server-ip>:9000/api/user_groups/create"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      name: dev-team
+```
+```
+- name: Create qa-team group
+  uri:
+    url: "http://<server-ip>:9000/api/user_groups/create"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      name: qa-team
+```
+```
+- name: Create devops-team group
+  uri:
+    url: "http://<server-ip>:9000/api/user_groups/create"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      name: devops-team
+```
+
+#### step 2: Assign Permissions using Ansible
+
+```
+- name: Assign Execute permission to dev-team
+  uri:
+    url: "http://<server-ip>:9000/api/permissions/add_group"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      groupName: dev-team
+      permission: scan
+      projectKey: employee-api
+```
+```
+- name: Assign Execute permission to qa-team
+  uri:
+    url: "http://<server-ip>:9000/api/permissions/add_group"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      groupName: qa-team
+      permission: scan
+      projectKey: employee-api
+```
+```
+- name: Assign Admin permission to devops-team
+  uri:
+    url: "http://<server-ip>:9000/api/permissions/add_group"
+    method: POST
+    user: admin
+    password: admin
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      groupName: devops-team
+      permission: admin
+      projectKey: employee-api
+```
+
+---
+
+## 5. SonarQube Extensions
+Navigate to:
+
+```
+Administration
+→ Marketplace
+```
+
+Common plugins:
+
+| Plugin | Purpose |
+|------|---------|
+| SonarJava | Java analysis |
+| SonarPython | Python analysis |
+| SonarGo | Go analysis |
+| SonarJS | JavaScript analysis |
+| OWASP Dependency Check | Security vulnerability scanning |
+
+---
+
+## 6. Conclusion
+
+In this implementation we successfully configured **Role-Based Access Control (RBAC)** in SonarQube.
+
+Permissions were assigned as:
+
+- **Dev Team → Execute Analysis**
+- **QA Team → Execute Analysis**
+- **DevOps Team → Full Administrative Access**
+
+We also demonstrated how SonarQube configuration can be automated using Ansible roles and REST APIs, enabling infrastructure as code and improving operational efficiency.
+
+---
+## 7. Contact Information
+
+| Contact Type | Details                                                             |
+| ------------ | ------------------------------------------------------------------- |
+| Name         | Suraj Tripathi                                                      |
+| Role         | DevOps Trainee                                                      |
+| Email        | [suraj.tripathi.snaatak@mygurukulam.co](mailto:suraj.tripathi.snaatak@mygurukulam.co) |
+
+---
+
+## 8. References
+
+| Resource | Description | Link |
+|---------|-------------|------|
+| SonarQube Documentation | Official documentation for installing, configuring, and managing SonarQube | https://docs.sonarqube.org |
+| Ansible Documentation | Official guide for Ansible modules, playbooks, and automation practices | https://docs.ansible.com |
+| SonarQube Web API | Documentation for SonarQube REST APIs used for automation and integration | https://docs.sonarqube.org/latest/extend/web-api/ |
+
+---
+
+
+
+
+
+
 
 
 
