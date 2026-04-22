@@ -1,0 +1,279 @@
+# OTMS Infrastructure Provisioning & Instance Type Comparison
+
+## Overview
+This document compares manually provisioned infrastructure vs Auto Scaling Group (ASG) provisioning for OTMS and provides Graviton, AMD and Intel instance recommendations to support performance, scalability, cost optimization and maintainability.
+
+---
+
+# Objectives
+
+- Identify components provisioned manually vs through ASGs  
+- Compare Graviton, AMD and Intel instances  
+- Recommend best instance types for OTMS components  
+- Reduce future scaling and maintenance risks  
+
+---
+
+# Infrastructure Provisioning Comparison
+
+| Component | Provisioning Model | Reason |
+|----------|-------------------|--------|
+| Frontend / NGINX | ASG | Stateless and scalable |
+| Application APIs | ASG | High availability and auto scaling |
+| Worker Services | ASG | Elastic workloads |
+| Redis | Manual | Stateful |
+| Kafka | Manual | Cluster-sensitive |
+| Elasticsearch | Manual | Stateful |
+| PostgreSQL | Manual | Persistent workload |
+| MongoDB | Manual | Persistent workload |
+| ScyllaDB | Manual | Persistent workload |
+| Bastion | Manual | Security controlled |
+| Jenkins | Manual | Persistent configuration |
+
+---
+
+# Manual vs ASG Comparison
+
+| Criteria | Manual | ASG |
+|---------|--------|-----|
+| Scaling | Manual | Automatic |
+| High Availability | Medium | High |
+| Self Healing | No | Yes |
+| Operational Overhead | High | Lower |
+| Best For | Stateful | Stateless |
+
+---
+
+# Recommended Provisioning Strategy
+
+## ASG Based Components
+```text
+Frontend
+Application APIs
+Worker Services
+```
+
+Suggested ASG:
+```text
+Min:1
+Desired:2
+Max:4
+```
+
+---
+
+## Manual Provisioned Components
+```text
+Databases
+Redis
+Kafka
+Elasticsearch
+Bastion
+Jenkins
+```
+
+---
+
+# Processor Comparison
+
+| Criteria | Graviton | AMD | Intel |
+|---------|----------|-----|------|
+| Architecture | ARM64 | x86_64 | x86_64 |
+| Cost | Lowest | Lower | Higher |
+| Price/Performance | Excellent | Very Good | Good |
+| Compatibility | Medium-High | High | Very High |
+| Legacy Support | Moderate | Strong | Strongest |
+| Cloud Native | Excellent | Good | Good |
+
+---
+
+# Best Use Cases
+
+| Workload | Recommended Processor |
+|---------|----------------------|
+| Frontend | Graviton |
+| APIs | Graviton / AMD |
+| Middleware | AMD |
+| Databases | AMD |
+| Legacy Apps | Intel |
+| Cost Sensitive Workloads | Graviton |
+
+---
+
+# Recommended Instance Selection
+
+## Frontend Tier
+Provisioning: ASG  
+Processor: Graviton
+
+```bash
+t4g.medium
+m7g.large
+c7g.large
+```
+
+---
+
+## Application Tier
+Provisioning: ASG  
+Processor: Graviton / AMD
+
+```bash
+m7g.large
+c7g.large
+m6a.large
+c6a.large
+```
+
+---
+
+## Middleware Tier
+Provisioning: Manual  
+Processor: AMD
+
+```bash
+Redis          r6a.large
+Kafka          m6a.xlarge
+Elasticsearch  r6a.xlarge
+```
+
+---
+
+## Database Tier
+Provisioning: Manual  
+Processor: AMD
+
+```bash
+r6a.large
+r6a.xlarge
+```
+
+---
+
+## Legacy or Specialized
+Provisioning: Manual  
+Processor: Intel
+
+Use only where:
+- Vendor restrictions exist  
+- Legacy compatibility required  
+- Intel tuned workloads  
+
+---
+
+# Component Decision Matrix
+
+| Component | Provisioning | Processor |
+|----------|--------------|-----------|
+| Frontend | ASG | Graviton |
+| APIs | ASG | Graviton/AMD |
+| Worker Nodes | ASG | Graviton |
+| Redis | Manual | AMD |
+| Kafka | Manual | AMD |
+| Elasticsearch | Manual | AMD |
+| Databases | Manual | AMD |
+| Bastion | Manual | AMD/Intel |
+| Jenkins | Manual | AMD |
+
+---
+
+# Risk Prevention
+
+| Risk | Prevention |
+|------|------------|
+| High Cost | Correct processor selection |
+| Scaling Issues | ASG for stateless tiers |
+| Compatibility Problems | Intel only where required |
+| Cluster Instability | Manual provisioning for stateful services |
+
+---
+
+# Recommended Architecture
+
+```text
+Stateless Workloads -> ASG + Graviton
+Stateful Workloads  -> Manual + AMD
+Legacy Apps         -> Intel when required
+```
+
+---
+
+# Best Practices
+
+## Auto Scaling
+Use:
+
+- Launch Templates  
+- Health Checks  
+- CPU based scaling  
+- Multi-AZ deployment  
+
+---
+
+## Processor Selection Rules
+
+Choose Graviton for:
+- Cloud native workloads
+- Containers
+- Cost optimization
+
+Choose AMD for:
+- Databases
+- Middleware
+- General x86 workloads
+
+Choose Intel for:
+- Legacy software
+- Vendor constraints
+
+---
+
+# Final Recommendation
+
+| Area | Recommendation |
+|------|----------------|
+| Stateless Layers | ASG + Graviton |
+| Stateful Layers | Manual + AMD |
+| Legacy Workloads | Intel only |
+| Scaling Strategy | Hybrid Model |
+
+Benefits:
+
+- Better scalability  
+- Lower cost  
+- Reduced maintenance risk  
+- Better performance  
+- Future proof architecture  
+
+---
+
+# References
+
+| Reference | Link |
+|----------|------|
+| Amazon EC2 Instance Types | https://aws.amazon.com/ec2/instance-types/ |
+| AWS Graviton | https://aws.amazon.com/ec2/graviton/ |
+| Amazon EC2 AMD Instances | https://aws.amazon.com/ec2/amd/ |
+| Amazon EC2 Intel Instances | https://aws.amazon.com/ec2/instance-types/#Intel_Based_Instances |
+| EC2 Auto Scaling Documentation | https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html |
+| Auto Scaling Best Practices | https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-benefits.html |
+| Application Load Balancer Docs | https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html |
+| AWS Well-Architected Framework | https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html |
+| Amazon VPC Documentation | https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html |
+| AWS Pricing Calculator | https://calculator.aws/ |
+| AMD EPYC Documentation | https://www.amd.com/en/processors/epyc |
+| Intel Xeon Documentation | https://www.intel.com/content/www/us/en/products/details/processors/xeon.html |
+
+---
+
+## Internal References
+
+| Document | Purpose |
+|---------|---------|
+| OTMS Manual Infrastructure Build Guide | Resource map, SG, NACL, ALB, ASG |
+| Manual Deployment Configurations | Infra provisioning reference |
+| Service Health Validation Steps | Connectivity and health checks |
+
+---
+
+**End of Document**
